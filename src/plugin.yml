@@ -1,0 +1,25 @@
+name: Gravestones
+version: 1.0
+website: https://54mpenguin.com
+author: 54mpenguin
+main: me.fiftyfour.gravestones.Main
+softdepend: [WorldGuard]
+depend: [HolographicDisplays]
+
+commands:
+  gravesadmin:
+    description: executes admin commands for the plugin.
+  restoregrave:
+    description: restores the player's latest grave.
+
+
+permissions:
+  gravestones.admin:
+    description: allows the player to use /gravesadmin to do admin actions.
+    default: op
+  gravestones.gps.radius:
+    description: allows the player to get a closer location on their grave.
+    default: null
+  gravestones.restoregrave:
+    description: allows the player to restore their latest grave with a command.
+    default: op
