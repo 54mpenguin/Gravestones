@@ -79,9 +79,6 @@ public class Gravestone {
                         if (getGrave(grave) != null) {
                             Gravestone.expire(grave);
                             Gravestone.deleteGrave(grave);
-                            Player player = Bukkit.getPlayer(grave.getOwner());
-                            player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 100, 1);
-                            player.sendMessage(ChatColor.LIGHT_PURPLE + "You're grave has expired and so you're items have been thrown on the ground!");
                         }
                     }
                 }, (1200 * grave.getTimeTillExpire()));
@@ -105,7 +102,8 @@ public class Gravestone {
         hologram.delete();
         Location loc = grave.getLocation();
         Block currentBlock = loc.getBlock();
-        currentBlock.setType(Material.AIR);
+        if (currentBlock.getType().equals(Material.CHEST))
+            currentBlock.setType(Material.AIR);
     }
 
     public static Gravestone getGrave(Location location, UUID clicker) {
@@ -140,11 +138,17 @@ public class Gravestone {
             if (item !=null)
                 Bukkit.getWorld(grave.getLocation().getWorld().getName()).dropItem(grave.getLocation(), item);
         }
+        Player player = Bukkit.getPlayer(grave.getOwner());
+        if (player != null){
+            player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 100, 1);
+            player.sendMessage(ChatColor.LIGHT_PURPLE + "Your grave has expired and the items have been dropped on the ground!");
+        }
         Hologram hologram = grave.getHologram();
         hologram.delete();
         Location loc = grave.getLocation();
         Block currentBlock = loc.getBlock();
-        currentBlock.setType(Material.AIR);
+        if (currentBlock.getType().equals(Material.CHEST))
+            currentBlock.setType(Material.AIR);
     }
 
     public int getEXPLevel() {
