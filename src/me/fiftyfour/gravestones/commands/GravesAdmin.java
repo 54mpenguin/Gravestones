@@ -1,6 +1,5 @@
 package me.fiftyfour.gravestones.commands;
 
-import me.fiftyfour.gravestones.Main;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -11,12 +10,10 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class GravesAdmin implements CommandExecutor {
-    private Plugin plugin = Main.getPlugin(Main.class);
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         if (s.equals("gravesadmin")) {
             if (!(commandSender instanceof Player)) {
