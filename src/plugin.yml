@@ -19,7 +19,7 @@ permissions:
     default: op
   gravestones.gps.radius:
     description: allows the player to get a closer location on their grave.
-    default: null
+    default: false
   gravestones.restoregrave:
     description: allows the player to restore their latest grave with a command.
     default: op
