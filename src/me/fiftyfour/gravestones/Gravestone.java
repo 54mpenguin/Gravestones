@@ -28,13 +28,12 @@ public class Gravestone {
                 ArrayList<Gravestone> graves = new ArrayList<>();
                 graves.add(grave);
                 Main.graves.put(grave.getOwner(), graves);
-                Main.gravesloc.add(grave.getLocation());
             }else {
                 int gravesAmount = Main.graves.get(grave.getOwner()).toArray().length;
                 grave.setNumber(gravesAmount + 1);
                 Main.graves.get(grave.getOwner()).add(grave);
-                Main.gravesloc.add(grave.getLocation());
             }
+            Main.gravesloc.add(grave.getLocation());
             Location loc = grave.getLocation();
             Block currentBlock = loc.getBlock();
             currentBlock.setType(Material.CHEST);
@@ -110,6 +109,7 @@ public class Gravestone {
     }
 
     public static Gravestone getGrave(Location location, UUID clicker) {
+        if (Main.graves.get(clicker) == null) return null;
         for (Gravestone grave : Main.graves.get(clicker)) {
             if (grave.getLocation().equals(location)) {
                 return grave;

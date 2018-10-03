@@ -12,6 +12,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 
@@ -22,7 +24,7 @@ public class onClick implements Listener {
         Player p = event.getPlayer();
         if (event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
             if (event.getClickedBlock().getType().equals(Material.CHEST)) {
-                if (Main.gravesloc.toString().contains(event.getClickedBlock().getLocation().toString())){
+                if (Main.gravesloc.contains(event.getClickedBlock().getLocation())){
                     event.setCancelled(true);
                     Gravestone grave = Gravestone.getGrave(event.getClickedBlock().getLocation(), p.getUniqueId());
                     if (grave == null) {
@@ -32,7 +34,6 @@ public class onClick implements Listener {
                     int zombieChance = (int)(Math.random() * 10 + 1);
                     if (zombieChance >= 8){
                         p.sendMessage(ChatColor.LIGHT_PURPLE + "You're corpse has been REINCARNATED!!");
-                        grave.getLocation().getWorld().strikeLightningEffect(grave.getLocation());
                         Zombie zombie = (Zombie) grave.getLocation().getWorld().spawnEntity(grave.getLocation(), EntityType.ZOMBIE);
                         zombie.setBaby(false);
                         zombie.setCustomName(p.getName() + " reincarnated");
@@ -41,7 +42,14 @@ public class onClick implements Listener {
                         zombie.setCustomNameVisible(true);
                         zombie.setTarget(p);
                         zombie.setHealth(20);
-                        zombie.setNoDamageTicks(0);
+                        zombie.setInvulnerable(true);
+                        zombie.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 100, 1));
+                        zombie.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 1000000000, 2));
+                        zombie.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 1000000000, 1));
+                        zombie.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 1000000000, 1));
+                        zombie.addPotionEffect(new PotionEffect(PotionEffectType.ABSORPTION, 100, 5));
+                        grave.getLocation().getWorld().strikeLightningEffect(grave.getLocation());
+                        zombie.setInvulnerable(false);
                     }
                     p.spawnParticle(Particle.TOTEM, event.getClickedBlock().getLocation(), 500);
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 50, 1);
