@@ -1,7 +1,7 @@
 package me.fiftyfour.gravestones.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,23 +26,17 @@ public class GravesAdmin implements CommandExecutor {
                 return false;
             }
             if (args.length == 0) {
-                player.sendMessage(ChatColor.RED + "Usage: /gravesadmin <test|reincarnate>");
+                player.sendMessage(ChatColor.RED + "Usage: /gravesadmin <reincarnate>");
                 return false;
             }
-            if (args[0].equals("test")){
-                player.sendMessage(ChatColor.LIGHT_PURPLE + "Testing grave spawning...(you will die)");
-                player.getInventory().addItem(new ItemStack(Material.STONE, 64));
-                player.giveExp(50);
-                player.setGameMode(GameMode.SURVIVAL);
-                player.setHealth(0);
-                player.sendMessage(ChatColor.LIGHT_PURPLE + "Beginning grave spawning....");
-                return true;
-            }else if (args[0].equals("reincarnate")) {
+            if (args[0].equals("reincarnate")) {
                 player.sendMessage(ChatColor.LIGHT_PURPLE + "You're corpse has been REINCARNATED!!");
                 Zombie zombie = (Zombie) player.getLocation().getWorld().spawnEntity(player.getLocation(), EntityType.ZOMBIE);
                 zombie.setBaby(false);
                 zombie.setCustomName(player.getName() + " reincarnated");
                 zombie.setRemoveWhenFarAway(false);
+                zombie.setCanPickupItems(true);
+                Bukkit.getWorld(zombie.getLocation().getWorld().getName()).dropItem(zombie.getLocation(), new ItemStack(Material.DIAMOND_SWORD)).setPickupDelay(0);
                 zombie.setCanPickupItems(false);
                 zombie.setCustomNameVisible(true);
                 zombie.setTarget(player);
@@ -56,7 +50,7 @@ public class GravesAdmin implements CommandExecutor {
                 player.getLocation().getWorld().strikeLightningEffect(player.getLocation());
                 zombie.setInvulnerable(false);
             }else{
-                player.sendMessage(ChatColor.RED + "Usage: /gravesadmin <test|reincarnate>");
+                player.sendMessage(ChatColor.RED + "Usage: /gravesadmin <reincarnate>");
                 return false;
             }
         }

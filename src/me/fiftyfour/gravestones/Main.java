@@ -2,10 +2,7 @@ package me.fiftyfour.gravestones;
 
 import me.fiftyfour.gravestones.commands.GravesAdmin;
 import me.fiftyfour.gravestones.commands.RestoreGrave;
-import me.fiftyfour.gravestones.events.onClick;
-import me.fiftyfour.gravestones.events.onDeath;
-import me.fiftyfour.gravestones.events.onEntityExplode;
-import me.fiftyfour.gravestones.events.onRespawn;
+import me.fiftyfour.gravestones.events.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,18 +16,20 @@ public class Main extends JavaPlugin {
     public static ArrayList<Location> gravesloc = new ArrayList<>();
     @Override
     public void onEnable() {
-        Bukkit.getPluginManager().registerEvents(new onDeath(), this);
-        Bukkit.getPluginManager().registerEvents(new onRespawn(), this);
-        Bukkit.getPluginManager().registerEvents(new onClick(), this);
-        Bukkit.getPluginManager().registerEvents(new onEntityExplode(), this);
-        this.getCommand("gravesadmin").setExecutor(new GravesAdmin());
-        this.getCommand("restoregrave").setExecutor(new RestoreGrave());
-        loadConfig();
         if (!Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
             getLogger().severe("*** HolographicDisplays is not installed or not enabled. ***");
             getLogger().severe("*** This plugin will be disabled. ***");
             this.setEnabled(false);
+            return;
         }
+        Bukkit.getPluginManager().registerEvents(new onDeath(), this);
+        Bukkit.getPluginManager().registerEvents(new onRespawn(), this);
+        Bukkit.getPluginManager().registerEvents(new onClick(), this);
+        Bukkit.getPluginManager().registerEvents(new onEntityExplode(), this);
+        Bukkit.getPluginManager().registerEvents(new onBlockPlace(), this);
+        Bukkit.getPluginManager().registerEvents(new onBlockBreak(), this);
+        this.getCommand("gravesadmin").setExecutor(new GravesAdmin());
+        this.getCommand("restoregrave").setExecutor(new RestoreGrave());
     }
 
     @Override
@@ -40,10 +39,5 @@ public class Main extends JavaPlugin {
                 Gravestone.expire(grave);
             }
         }
-    }
-
-    private void loadConfig() {
-        getConfig().options().copyDefaults(true);
-        saveConfig();
     }
 }

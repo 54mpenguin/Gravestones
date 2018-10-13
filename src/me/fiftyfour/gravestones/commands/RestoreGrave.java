@@ -24,7 +24,7 @@ public class RestoreGrave implements CommandExecutor {
                 return false;
             }
             ArrayList<Gravestone> graveList = Gravestone.getGrave(p.getUniqueId());
-            if (graveList == null) {
+            if (graveList == null || graveList.toArray().length <= 0) {
                 p.sendMessage(ChatColor.RED + "You don't have a grave to restore!");
                 return false;
             }
@@ -33,13 +33,16 @@ public class RestoreGrave implements CommandExecutor {
             p.spawnParticle(Particle.TOTEM, p.getLocation(), 500);
             p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 50, 1);
             p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 50, 1);
-            for (ItemStack item : p.getInventory().getContents()) {
-                if (item != null) {
+            for (ItemStack item : p.getInventory().getStorageContents()) {
+                if (item != null && !item.getType().equals(Material.AIR)) {
                     p.getWorld().dropItem(p.getLocation(), item);
                 }
             }
+            if (p.getInventory().getItemInOffHand() != null && !p.getInventory().getItemInOffHand().getType().equals(Material.AIR)){
+                p.getWorld().dropItem(p.getLocation(), p.getInventory().getItemInOffHand());
+            }
             for (ItemStack item : p.getInventory().getArmorContents()) {
-                if (item != null) {
+                if (item != null  && !p.getInventory().getItemInOffHand().getType().equals(Material.AIR)) {
                     p.getWorld().dropItem(p.getLocation(), item);
                 }
             }
@@ -47,6 +50,9 @@ public class RestoreGrave implements CommandExecutor {
             if (items != null) {
                 ItemStack[] itemsArray = items.toArray(new ItemStack[35]);
                 p.getInventory().setContents(itemsArray);
+            }
+            if (grave.getOffHand() != null){
+                p.getInventory().setItemInOffHand(grave.getOffHand());
             }
             ArrayList<ItemStack> armor = grave.getArmor();
             if (armor != null) {

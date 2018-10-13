@@ -5,10 +5,7 @@ import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import me.fiftyfour.gravestones.Gravestone;
 import me.fiftyfour.gravestones.Main;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -49,15 +46,17 @@ public class onDeath implements Listener {
             event.setKeepLevel(true);
             event.getDrops().clear();
             Ploc = p.getEyeLocation().getBlock().getLocation();
-            String lastDamage = p.getLastDamageCause().getCause().toString();
-            if(Ploc.getBlockY() >= 256){
-                Ploc.setY(255);
-            }
-            if (lastDamage.equals("VOID")){
-                Ploc.setY(1);
-                p.sendMessage(ChatColor.LIGHT_PURPLE + "You seemed to have died in the void, Your grave was spawned just above the void.");
-            }else if (lastDamage.equals("LAVA")){
-                Ploc = getDeathLocation(Ploc);
+            if (p.getLastDamageCause().toString() != null) {
+                String lastDamage = p.getLastDamageCause().getCause().toString();
+                if (Ploc.getBlockY() >= 256) {
+                    Ploc.setY(255);
+                }
+                if (lastDamage.equals("VOID")) {
+                    Ploc.setY(1);
+                    p.sendMessage(ChatColor.LIGHT_PURPLE + "You seemed to have died in the void, Your grave was spawned just above the void.");
+                } else if (lastDamage.equals("LAVA")) {
+                    Ploc = getDeathLocation(Ploc);
+                }
             }
             int graveNumber;
             if(Main.graves.get(p.getUniqueId()) != null) {
@@ -69,11 +68,15 @@ public class onDeath implements Listener {
             final ArrayList<ItemStack> armorCont = new ArrayList<>(Arrays.asList(p.getInventory().getArmorContents()));
             final ArrayList<ItemStack> invCont = new ArrayList<>();
             for(ItemStack stack : p.getInventory().getStorageContents()){
-                if(stack != null) invCont.add(stack);
+                if(stack != null  && !stack.getType().equals(Material.AIR)) invCont.add(stack);
+            }
+            if (p.getInventory().getItemInOffHand() != null){
+                grave.setOffHand(p.getInventory().getItemInOffHand());
             }
             grave.setArmor(armorCont);
             grave.setItems(invCont);
             grave.setEXPLevel(p.getTotalExperience());
+            Ploc = Gravestone.checkNear(Ploc);
             grave.setLocation(Ploc);
             grave.setOwner(p.getUniqueId());
             grave.setNumber(graveNumber + 1);
@@ -101,10 +104,11 @@ public class onDeath implements Listener {
         }
     }
     private boolean isIventoryEmpty(Player player){
-        for(ItemStack item : player.getInventory().getContents()){
+        for(ItemStack item : player.getInventory().getStorageContents()){
             if(item != null)
                 return false;
         }
+        if (player.getInventory().getItemInOffHand() != null) return false;
         for(ItemStack item : player.getInventory().getArmorContents()){
             if(item != null)
                 return false;

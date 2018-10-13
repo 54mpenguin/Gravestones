@@ -24,7 +24,14 @@ public class onRespawn implements Listener {
         Player player = event.getPlayer();
         ArrayList<Gravestone> graves = Main.graves.get(player.getUniqueId());
         if (graves == null)return;
-        Gravestone latestGrave = Main.graves.get(player.getUniqueId()).get(graves.toArray().length - 1);
+        int latestgravenumber = graves.toArray().length - 1;
+        if (latestgravenumber < 0) latestgravenumber = 0;
+        Gravestone latestGrave;
+        try {
+            latestGrave = Main.graves.get(player.getUniqueId()).get(latestgravenumber);
+        }catch (IndexOutOfBoundsException iobe){
+            return;
+        }
         Location graveLoc = latestGrave.getLocation().clone();
         int accuracy = getGpsRadius(player);
         int randomX = (int)(Math.random() * accuracy + 1);

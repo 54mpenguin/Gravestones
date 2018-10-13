@@ -19,11 +19,13 @@ import java.util.ArrayList;
 
 public class onClick implements Listener {
 
+    private ArrayList<Gravestone> redeemed = new ArrayList<>();
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onInteract(PlayerInteractEvent event) {
         Player p = event.getPlayer();
         if (event.getAction().equals(Action.LEFT_CLICK_BLOCK) || event.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
-            if (event.getClickedBlock().getType().equals(Material.CHEST)) {
+            if (event.getClickedBlock().getType().equals(Material.CHEST) || event.getClickedBlock().getType().equals(Material.TRAPPED_CHEST)) {
                 if (Main.gravesloc.contains(event.getClickedBlock().getLocation())){
                     event.setCancelled(true);
                     Gravestone grave = Gravestone.getGrave(event.getClickedBlock().getLocation(), p.getUniqueId());
@@ -31,6 +33,10 @@ public class onClick implements Listener {
                         p.sendMessage(ChatColor.LIGHT_PURPLE + "That is not your grave! You cannot open it!");
                         return;
                     }
+                    if (redeemed.contains(grave)){
+                        return;
+                    }
+                    redeemed.add(grave);
                     int zombieChance = (int)(Math.random() * 10 + 1);
                     if (zombieChance >= 8){
                         p.sendMessage(ChatColor.LIGHT_PURPLE + "You're corpse has been REINCARNATED!!");
@@ -54,13 +60,16 @@ public class onClick implements Listener {
                     p.spawnParticle(Particle.TOTEM, event.getClickedBlock().getLocation(), 500);
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 50, 1);
                     p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 50, 1);
-                    for (ItemStack item : p.getInventory().getContents()) {
-                        if (item != null) {
+                    for (ItemStack item : p.getInventory().getStorageContents()) {
+                        if (item != null && !item.getType().equals(Material.AIR)) {
                             p.getWorld().dropItem(p.getLocation(), item);
                         }
                     }
+                    if (p.getInventory().getItemInOffHand() != null && !p.getInventory().getItemInOffHand().getType().equals(Material.AIR)){
+                        p.getWorld().dropItem(p.getLocation(), p.getInventory().getItemInOffHand());
+                    }
                     for (ItemStack item : p.getInventory().getArmorContents()) {
-                        if (item != null) {
+                        if (item != null  && !p.getInventory().getItemInOffHand().getType().equals(Material.AIR)) {
                             p.getWorld().dropItem(p.getLocation(), item);
                         }
                     }
@@ -69,12 +78,16 @@ public class onClick implements Listener {
                         ItemStack[] itemsArray = items.toArray(new ItemStack[35]);
                         p.getInventory().setContents(itemsArray);
                     }
+                    if (grave.getOffHand() != null){
+                        p.getInventory().setItemInOffHand(grave.getOffHand());
+                    }
                     ArrayList<ItemStack> armor = grave.getArmor();
                     if (armor != null) {
                         ItemStack[] armorArray = armor.toArray(new ItemStack[3]);
                         p.getInventory().setArmorContents(armorArray);
                     }
                     p.giveExp(grave.getEXPLevel());
+                    redeemed.remove(grave);
                     Gravestone.deleteGrave(grave);
                     p.sendMessage(ChatColor.LIGHT_PURPLE + "Your inventory, armor and exp levels have been brought back from the grave!");
                 }
