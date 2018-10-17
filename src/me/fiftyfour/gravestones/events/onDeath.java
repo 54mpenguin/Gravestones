@@ -41,6 +41,10 @@ public class onDeath implements Listener {
         if (getWorldGuard() != null){
             if (!getWorldGuard().canBuild(p, p.getEyeLocation())) return;
         }
+        if (Main.disabled) {
+            event.setKeepInventory(true);
+            return;
+        }
         if (p.getKiller() == null || p.getKiller().equals(p)){
             event.setKeepInventory(true);
             event.setKeepLevel(true);
@@ -55,7 +59,7 @@ public class onDeath implements Listener {
                     Ploc.setY(1);
                     p.sendMessage(ChatColor.LIGHT_PURPLE + "You seemed to have died in the void, Your grave was spawned just above the void.");
                 } else if (lastDamage.equals("LAVA")) {
-                    Ploc = getDeathLocation(Ploc);
+                    Ploc = getDeathLocation(p.getEyeLocation().getBlock().getLocation().clone());
                 }
             }
             int graveNumber;

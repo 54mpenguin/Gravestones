@@ -48,12 +48,13 @@ public class Gravestone {
                 @Override
                 public void run() {
                     try {
-                        if (getGrave(grave) != null) {
-                            Gravestone.expire(grave);
-                            Gravestone.deleteGrave(grave);
+                        Gravestone gravestone = getGrave(grave.getLocation(), grave.getOwner());
+                        if (gravestone != null) {
+                            Gravestone.expire(gravestone);
+                            Gravestone.deleteGrave(gravestone);
                         }
-                    }catch (IndexOutOfBoundsException e){
-                        return;
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
                 }
             }, (1200 * grave.getTimeTillExpire()));
@@ -90,12 +91,13 @@ public class Gravestone {
                     @Override
                     public void run() {
                         try {
-                            if (getGrave(grave) != null) {
-                                Gravestone.expire(grave);
-                                Gravestone.deleteGrave(grave);
+                            Gravestone gravestone = getGrave(grave.getLocation(), grave.getOwner());
+                            if (gravestone != null) {
+                                Gravestone.expire(gravestone);
+                                Gravestone.deleteGrave(gravestone);
                             }
-                        }catch (IndexOutOfBoundsException e){
-                            return;
+                        }catch (Exception e){
+                            e.printStackTrace();
                         }
                     }
                 }, (1200 * grave.getTimeTillExpire()));
@@ -236,6 +238,8 @@ public class Gravestone {
             for (Gravestone gravestone : Main.graves.get(grave.getOwner())) {
                 gravestone.setNumber(Main.graves.get(grave.getOwner()).indexOf(gravestone) + 1);
             }
+        }else{
+            Main.graves.remove(grave.getOwner());
         }
         Hologram hologram = grave.getHologram();
         hologram.delete();
@@ -257,15 +261,6 @@ public class Gravestone {
 
     public static ArrayList<Gravestone> getGrave(UUID owner) {
         return Main.graves.get(owner);
-    }
-
-    private static Gravestone getGrave(Gravestone grave) {
-        UUID owner = grave.getOwner();
-        int number = grave.getNumber();
-        if (Main.graves.get(owner).isEmpty() || Main.graves.get(grave.getOwner()).toArray().length < grave.getNumber()) {
-            return null;
-        }
-        return Main.graves.get(owner).get(number);
     }
 
     static void expire(Gravestone grave) {
