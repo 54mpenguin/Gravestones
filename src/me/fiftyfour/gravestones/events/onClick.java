@@ -2,6 +2,7 @@ package me.fiftyfour.gravestones.events;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
+import me.fiftyfour.gravestones.Exp;
 import me.fiftyfour.gravestones.Gravestone;
 import me.fiftyfour.gravestones.Main;
 import org.bukkit.*;
@@ -85,15 +86,15 @@ public class onClick implements Listener {
                     p.playSound(p.getLocation(), Sound.ENTITY_VILLAGER_YES, 50, 1);
                     p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 50, 1);
                     for (ItemStack item : p.getInventory().getStorageContents()) {
-                        if (item != null && !item.getType().equals(Material.AIR)) {
+                        if (item != null && item.getType() != Material.AIR) {
                             p.getWorld().dropItem(p.getLocation(), item);
                         }
                     }
-                    if (p.getInventory().getItemInOffHand() != null && !p.getInventory().getItemInOffHand().getType().equals(Material.AIR)){
+                    if (p.getInventory().getItemInOffHand() != null && p.getInventory().getItemInOffHand().getType() != Material.AIR){
                         p.getWorld().dropItem(p.getLocation(), p.getInventory().getItemInOffHand());
                     }
                     for (ItemStack item : p.getInventory().getArmorContents()) {
-                        if (item != null  && !p.getInventory().getItemInOffHand().getType().equals(Material.AIR)) {
+                        if (item != null  && p.getInventory().getItemInOffHand().getType() != Material.AIR) {
                             p.getWorld().dropItem(p.getLocation(), item);
                         }
                     }
@@ -110,7 +111,7 @@ public class onClick implements Listener {
                         ItemStack[] armorArray = armor.toArray(new ItemStack[3]);
                         p.getInventory().setArmorContents(armorArray);
                     }
-                    p.giveExp(grave.getEXPLevel());
+                    Exp.changePlayerExp(p, grave.getEXPLevel());
                     redeemed.remove(grave);
                     Gravestone.deleteGrave(grave);
                     p.sendMessage(ChatColor.LIGHT_PURPLE + "Your inventory, armor and exp levels have been brought back from the grave!");

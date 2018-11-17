@@ -3,6 +3,7 @@ package me.fiftyfour.gravestones.events;
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import me.fiftyfour.gravestones.Exp;
 import me.fiftyfour.gravestones.Gravestone;
 import me.fiftyfour.gravestones.Main;
 import org.bukkit.*;
@@ -42,7 +43,9 @@ public class onDeath implements Listener {
             if (!getWorldGuard().canBuild(p, p.getEyeLocation())) return;
         }
         if (Main.disabled) {
+            p.sendMessage(ChatColor.LIGHT_PURPLE + "Due to an issue graves are currently disabled! Instead your inventory has kept on you!");
             event.setKeepInventory(true);
+            event.setKeepLevel(true);
             return;
         }
         if (p.getKiller() == null || p.getKiller().equals(p)){
@@ -79,7 +82,7 @@ public class onDeath implements Listener {
             }
             grave.setArmor(armorCont);
             grave.setItems(invCont);
-            grave.setEXPLevel(p.getTotalExperience());
+            grave.setEXPLevel(Exp.getPlayerExp(p));
             Ploc = Gravestone.checkNear(Ploc);
             grave.setLocation(Ploc);
             grave.setOwner(p.getUniqueId());
@@ -104,7 +107,6 @@ public class onDeath implements Listener {
             p.getInventory().clear();
             event.setKeepInventory(false);
             event.setKeepLevel(false);
-            p.setExp(0);
         }
     }
     private boolean isIventoryEmpty(Player player){
