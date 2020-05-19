@@ -2,6 +2,9 @@ package me.fiftyfour.gravestones.events;
 
 import com.gmail.filoghost.holographicdisplays.api.Hologram;
 import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
+import com.sainttx.holograms.api.line.HologramLine;
+import com.sainttx.holograms.api.line.ItemLine;
+import com.sainttx.holograms.api.line.TextLine;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import me.fiftyfour.gravestones.Exp;
 import me.fiftyfour.gravestones.Gravestone;
@@ -43,7 +46,7 @@ public class onDeath implements Listener {
             if (!getWorldGuard().canBuild(p, p.getEyeLocation())) return;
         }
         if (Main.disabled) {
-            p.sendMessage(ChatColor.LIGHT_PURPLE + "Due to an issue graves are currently disabled! Instead your inventory has kept on you!");
+            p.sendMessage(ChatColor.LIGHT_PURPLE + "Due to an issue graves are currently disabled! Instead your inventory has stayed on you!");
             event.setKeepInventory(true);
             event.setKeepLevel(true);
             return;
@@ -58,7 +61,7 @@ public class onDeath implements Listener {
                 if (Ploc.getBlockY() >= 256) {
                     Ploc.setY(255);
                 }
-                if (lastDamage.equals("VOID")) {
+                if (lastDamage.equals("VOID") && Ploc.getBlockY() <= 1) {
                     Ploc.setY(1);
                     p.sendMessage(ChatColor.LIGHT_PURPLE + "You seemed to have died in the void, Your grave was spawned just above the void.");
                 } else if (lastDamage.equals("LAVA")) {
@@ -83,7 +86,9 @@ public class onDeath implements Listener {
             grave.setArmor(armorCont);
             grave.setItems(invCont);
             grave.setEXPLevel(Exp.getPlayerExp(p));
-            Ploc = Gravestone.checkNear(Ploc);
+            if (plugin.getServer().getVersion().contains("1.12") || plugin.getServer().getVersion().contains("1.13")) {
+                Ploc = Gravestone.checkNear(Ploc);
+            }
             grave.setLocation(Ploc);
             grave.setOwner(p.getUniqueId());
             grave.setNumber(graveNumber + 1);
@@ -91,22 +96,39 @@ public class onDeath implements Listener {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
             LocalDateTime now = LocalDateTime.now();
             Location holoLoc = Ploc.clone();
-            holoLoc.add(0.5, 3, 0.5);
-            Hologram hologram = HologramsAPI.createHologram(plugin, holoLoc);
-            ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+            ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
             SkullMeta sm = (SkullMeta) skull.getItemMeta();
             sm.setOwningPlayer(p);
             skull.setItemMeta(sm);
-            hologram.appendItemLine(skull);
-            hologram.appendTextLine(ChatColor.GOLD + "" + ChatColor.BOLD + p.getName() + "'s Grave");
-            hologram.appendTextLine(ChatColor.GOLD + "Time of Death: " + dtf.format(now));
-            hologram.appendTextLine(ChatColor.GRAY + "" + ChatColor.ITALIC + "They" + event.getDeathMessage().replace(p.getName(), "").replace("was", "were"));
-            grave.setHologram(hologram);
+            if (Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
+                holoLoc.add(0.5, 3, 0.5);
+                Hologram hologram = HologramsAPI.createHologram(plugin, holoLoc);
+                hologram.appendItemLine(skull);
+                hologram.appendTextLine(ChatColor.GOLD + "" + ChatColor.BOLD + p.getName() + "'s Grave");
+                hologram.appendTextLine(ChatColor.GOLD + "Time of Death: " + dtf.format(now));
+                hologram.appendTextLine(ChatColor.GRAY + "" + ChatColor.ITALIC + "They" + event.getDeathMessage().replace(p.getName(), "").replace("was", "were"));
+                grave.setHologram(hologram);
+            }else if (Bukkit.getPluginManager().isPluginEnabled("Holograms")) {
+                holoLoc.add(0.5, 2, 0.5);
+                com.sainttx.holograms.api.Hologram hologram = new com.sainttx.holograms.api.Hologram(p.getUniqueId().toString() + graveNumber+1, holoLoc);
+                Main.hologramManager.addActiveHologram(hologram);
+                HologramLine itemLine = new ItemLine(hologram, skull);
+                HologramLine line1 = new TextLine(hologram, ChatColor.GOLD + "" + ChatColor.BOLD + p.getName() + "'s Grave");
+                HologramLine line2 = new TextLine(hologram, ChatColor.GOLD + "Time of Death: " + dtf.format(now));
+                HologramLine line3 = new TextLine(hologram, ChatColor.GRAY + "" + ChatColor.ITALIC + "They" + event.getDeathMessage().replace(p.getName(), "").replace("was", "were"));
+                hologram.addLine(itemLine);
+                hologram.addLine(line1);
+                hologram.addLine(line2);
+                hologram.addLine(line3);
+                grave.setHologram2(hologram);
+            }
             Gravestone.createGrave(grave);
             p.getInventory().setArmorContents(null);
             p.getInventory().clear();
             event.setKeepInventory(false);
             event.setKeepLevel(false);
+        }else{
+            p.sendMessage(ChatColor.LIGHT_PURPLE + "You were killed by a player, no grave was created and your loot was dropped naturally.");
         }
     }
     private boolean isIventoryEmpty(Player player){

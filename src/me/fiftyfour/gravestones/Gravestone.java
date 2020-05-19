@@ -22,6 +22,7 @@ public class Gravestone {
     private int timeTillExpire;
     private int number;
     private Hologram hologram;
+    private com.sainttx.holograms.api.Hologram hologram2;
 
     public static void createGrave(Gravestone grave) {
         Plugin plugin = Main.getPlugin(Main.class);
@@ -36,26 +37,28 @@ public class Gravestone {
                 Main.graves.get(grave.getOwner()).add(grave);
             }
             Location loc = grave.getLocation();
-            if (trappedChest(loc)) {
-                Block currentBlock = loc.getBlock();
-                currentBlock.setType(Material.TRAPPED_CHEST);
-            } else {
+            if (plugin.getServer().getVersion().contains("1.12")||plugin.getServer().getVersion().contains("1.13")) {
+                if (trappedChest(loc)) {
+                    Block currentBlock = loc.getBlock();
+                    currentBlock.setType(Material.TRAPPED_CHEST);
+                } else {
+                    Block currentBlock = loc.getBlock();
+                    currentBlock.setType(Material.CHEST);
+                }
+            }else{
                 Block currentBlock = loc.getBlock();
                 currentBlock.setType(Material.CHEST);
             }
             Main.gravesloc.add(grave.getLocation());
-            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Gravestone gravestone = getGrave(grave.getLocation(), grave.getOwner());
-                        if (gravestone != null) {
-                            Gravestone.expire(gravestone);
-                            Gravestone.deleteGrave(gravestone);
-                        }
-                    }catch (Exception e){
-                        e.printStackTrace();
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                try {
+                    Gravestone gravestone = getGrave(grave.getLocation(), grave.getOwner());
+                    if (gravestone != null) {
+                        Gravestone.expire(gravestone);
+                        Gravestone.deleteGrave(gravestone);
                     }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
             }, (1200 * grave.getTimeTillExpire()));
         } else {
@@ -79,26 +82,28 @@ public class Gravestone {
                 grave.setNumber(gravesAmount + 1);
                 Main.graves.get(grave.getOwner()).add(grave);
                 Location loc = grave.getLocation();
-                if (trappedChest(loc)) {
-                    Block currentBlock = loc.getBlock();
-                    currentBlock.setType(Material.TRAPPED_CHEST);
-                } else {
+                if (plugin.getServer().getVersion().contains("1.12")||plugin.getServer().getVersion().contains("1.13")) {
+                    if (trappedChest(loc)) {
+                        Block currentBlock = loc.getBlock();
+                        currentBlock.setType(Material.TRAPPED_CHEST);
+                    } else {
+                        Block currentBlock = loc.getBlock();
+                        currentBlock.setType(Material.CHEST);
+                    }
+                }else{
                     Block currentBlock = loc.getBlock();
                     currentBlock.setType(Material.CHEST);
                 }
                 Main.gravesloc.add(grave.getLocation());
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Gravestone gravestone = getGrave(grave.getLocation(), grave.getOwner());
-                            if (gravestone != null) {
-                                Gravestone.expire(gravestone);
-                                Gravestone.deleteGrave(gravestone);
-                            }
-                        }catch (Exception e){
-                            e.printStackTrace();
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                    try {
+                        Gravestone gravestone = getGrave(grave.getLocation(), grave.getOwner());
+                        if (gravestone != null) {
+                            Gravestone.expire(gravestone);
+                            Gravestone.deleteGrave(gravestone);
                         }
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
                 }, (1200 * grave.getTimeTillExpire()));
             }
@@ -241,8 +246,13 @@ public class Gravestone {
         }else{
             Main.graves.remove(grave.getOwner());
         }
-        Hologram hologram = grave.getHologram();
-        hologram.delete();
+        if (Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
+            Hologram hologram = grave.getHologram();
+            hologram.delete();
+        }else if (Bukkit.getPluginManager().isPluginEnabled("Holograms")) {
+            com.sainttx.holograms.api.Hologram hologram = grave.getHologram2();
+            Main.hologramManager.deleteHologram(hologram);
+        }
         Location loc = grave.getLocation();
         Block currentBlock = loc.getBlock();
         if (currentBlock.getType().equals(Material.CHEST) || currentBlock.getType().equals(Material.TRAPPED_CHEST))
@@ -277,8 +287,13 @@ public class Gravestone {
             player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 100, 1);
             player.sendMessage(ChatColor.LIGHT_PURPLE + "Your grave has expired and the items have been dropped on the ground!");
         }
-        Hologram hologram = grave.getHologram();
-        hologram.delete();
+        if (Bukkit.getPluginManager().isPluginEnabled("HolographicDisplays")) {
+            Hologram hologram = grave.getHologram();
+            hologram.delete();
+        }else if (Bukkit.getPluginManager().isPluginEnabled("Holograms")) {
+            com.sainttx.holograms.api.Hologram hologram = grave.getHologram2();
+            Main.hologramManager.deleteHologram(hologram);
+        }
         Location loc = grave.getLocation();
         Block currentBlock = loc.getBlock();
         if (currentBlock.getType().equals(Material.CHEST) || currentBlock.getType().equals(Material.TRAPPED_CHEST))
@@ -317,6 +332,10 @@ public class Gravestone {
         return hologram;
     }
 
+    private com.sainttx.holograms.api.Hologram getHologram2(){
+        return hologram2;
+    }
+
     public void setNumber(int number) {
         this.number = number;
     }
@@ -347,6 +366,10 @@ public class Gravestone {
 
     public void setHologram(Hologram hologram) {
         this.hologram = hologram;
+    }
+
+    public void setHologram2(com.sainttx.holograms.api.Hologram hologram) {
+        this.hologram2 = hologram;
     }
 
     private boolean hasOwner() {

@@ -39,7 +39,7 @@ public class GravesAdmin implements CommandExecutor {
                 return false;
             }
             if (args[0].equalsIgnoreCase("reincarnate")) {
-                player.sendMessage(ChatColor.LIGHT_PURPLE + "You're corpse has been REINCARNATED!!");
+                player.sendMessage(ChatColor.LIGHT_PURPLE + "Your corpse has been REINCARNATED!!");
                 Zombie zombie = (Zombie) player.getLocation().getWorld().spawnEntity(player.getLocation(), EntityType.ZOMBIE);
                 zombie.setBaby(false);
                 zombie.setCustomName(player.getName() + " reincarnated");

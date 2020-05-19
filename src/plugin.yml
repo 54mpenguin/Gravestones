@@ -1,10 +1,10 @@
 name: Gravestones
 version: 1.5
+api-version: 1.14
 website: https://54mpenguin.com
 author: 54mpenguin
 main: me.fiftyfour.gravestones.Main
-softdepend: [WorldGuard]
-depend: [HolographicDisplays]
+softdepend: [WorldGuard, HolographicDisplays, Holograms]
 
 commands:
   gravesadmin:
